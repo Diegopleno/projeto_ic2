@@ -2,9 +2,9 @@ name: Go
 
 on:
   push:
-    branches: [ '*' ]
+    branches: [ Aula_1 ]
   pull_request:
-    branches: [ '*' ]
+    branches: [ Aula_1 ]
 
 jobs:
   test:
@@ -12,20 +12,19 @@ jobs:
     strategy:
       matrix:
         go_version: ['1.18', '1.17', '>=1.18']
-        os: ['ubuntu-latest', 'ubuntu-18.04']
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ matrix.go_version }}
-      
-    - name: Start Docker Compose services
-      run: docker-compose up -d
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go_version }}
 
-    - name: Wait for PostgreSQL to be ready
-      run:
+      - name: Start Docker Compose services
+        run: docker-compose up -d
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
           for i in {1..30}; do
             if docker-compose exec -T postgres pg_isready -U root -d root; then
               echo "PostgreSQL is ready!"
@@ -35,21 +34,21 @@ jobs:
             sleep 2
           done
           echo "PostgreSQL did not start in time"
-          exit 1  
-          
-    - name: Download dependencies
-      run: go mod download
+          exit 1
 
-    - name: Test
-      run: go test -v main_test.go
-      
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test -v main_test.go
+
   build:
     needs: test
     runs-on: ${{ matrix.os }}
     strategy:
-    matrix:
+      matrix:
+        os: ['ubuntu-latest', 'ubuntu-22.04']
     steps:
-      os: ['ubuntu-latest', 'ubuntu-22.04']  # evite ubuntu-18.04 (antigo)
-    - uses: actions/checkout@v4
-    - name: Build
-      run: go build -v main.go
+      - uses: actions/checkout@v4
+      - name: Build
+        run: go build -v main.go
