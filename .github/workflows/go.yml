@@ -11,18 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.20', '1.21', '1.22', '1.23']  # versões reais e suportadas
+        go-version: ['1.20', '1.21', '1.22', '1.23']
 
     steps:
-      - uses: actions/checkout@v4  # ou v6 se preferir mais novo
+      - uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v6  # ← importante: v6 em 2026
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go-version }}
-          cache: true  # cache de módulos Go
+          cache: true
 
-      # Se seus testes PRECISAM do banco rodando (integração):
       - name: Install Docker Compose v2 (if needed)
         run: |
           # docker compose v2 já vem pré-instalado no ubuntu-latest
@@ -34,21 +33,21 @@ jobs:
           docker compose up -d
 
       - name: Wait for DB to be ready (opcional, mas evita falhas)
-        run: sleep 10  # ou use um script melhor de healthcheck
+        run: sleep 10
 
       - name: Run tests
-        run: go test ./... -v  # ← todos os testes, não só um arquivo
+        run: go test ./... -v
 
   build:
     needs: test
-    runs-on: ubuntu-latest  # ← troquei ubuntu-18.04 por latest (ou ubuntu-22.04)
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.23'  # ou fixe na que você usa
+          go-version: '1.23'
           cache: true
 
       - name: Build
