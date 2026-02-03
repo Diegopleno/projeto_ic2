@@ -22,13 +22,14 @@ jobs:
           go-version: ${{ matrix.go-version }}
           cache: true
 
-      - name: Install Docker Compose v2 (if needed)
-        run: |
-          
-      - name: Build and start DB
+      - name: Start DB
         run: |
           docker compose build
           docker compose up -d
+          
+      - name: Wait for Postgres
+        run: |
+          timeout 30s bash -c "until docker compose exec -T postgres pg_isready -U root; do sleep 1; done"
 
       - name: Wait for DB to be ready (opcional, mas evita falhas)
         run: sleep 10

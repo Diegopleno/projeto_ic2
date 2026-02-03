@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgres:
-    image: "postgres"
+    image: "postgres:17"
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
@@ -10,6 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - /postgres-data:/var/lib/postgresql/data  
+  healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   pgadmin-compose:
     image: dpage/pgadmin4
@@ -19,5 +24,10 @@ services:
     ports:
       - "54321:80"
     depends_on:
-      - postgres
+    postgres:
+      condition: service_healthy
+  restart: unless-stopped
+
+volumes:
+  postgres-data:
 
