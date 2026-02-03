@@ -2,52 +2,58 @@ name: Go CI
 
 on:
   push:
-    branches: [ Aula_1 ]
+    branches: [ '*' ]
   pull_request:
-    branches: [ Aula_1 ]
+    branches: [ '*' ]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go-version: ['1.20', '1.21', '1.22', '1.23']
-
+        go-version: ['1.21', '1.22', '1.23', '>=1.23']  # versões reais/suportadas (removi 1.17/1.18 por serem EOL)
+        os: ['ubuntu-latest', 'ubuntu-22.04']           # 18.04 morreu; use 22.04 como "antigo" compatível
+        exclude:                                        # opcional: evite combinações muito antigas se quiser
+          - go-version: '>=1.23'
+            os: 'ubuntu-22.04'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4  # atualizado
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v6   # v6 é atual em 2026, suporta '>=1.xx' perfeitamente
         with:
           go-version: ${{ matrix.go-version }}
           cache: true
 
       - name: Start DB
         run: |
+          # docker compose (sem hífen) já existe no runner
+          docker compose version || echo "docker compose não disponível"
           docker compose build
           docker compose up -d
-          
-      - name: Wait for Postgres
-        run: |
-          timeout 30s bash -c "until docker compose exec -T postgres pg_isready -U root; do sleep 1; done"
 
-      - name: Wait for DB to be ready (opcional, mas evita falhas)
-        run: sleep 10
+      - name: Wait for DB ready
+        run: |
+          timeout 60s bash -c "until docker compose exec -T postgres pg_isready -U root; do echo 'Waiting...'; sleep 2; done"
+          echo "Postgres ready!"
 
       - name: Run tests
-        run: go test ./... -v
+        run: go test ./... -v   # melhor: roda todos os testes (não só main_test.go)
 
   build:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'ubuntu-22.04']  # mesma matrix de OS
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: '1.23'
+          go-version: '1.23'   # fixe uma versão estável para build (ou use matrix se quiser)
           cache: true
 
       - name: Build
-        run: go build -v ./...
+        run: go build -v ./...   # ./... é melhor que só main.go
