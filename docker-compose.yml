@@ -30,7 +30,6 @@ services:
       -  DB_USER=root
       -  DB_PASSWORD=root
       -  DB_NAME=root
-      -  DB_PORT=5432
     postgres:
       condition: service_healthy
   restart: unless-stopped
