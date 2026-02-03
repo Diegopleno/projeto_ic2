@@ -19,17 +19,21 @@ services:
   pgadmin-compose:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: "gui@alura.com"
-      PGADMIN_DEFAULT_PASSWORD: "123456"
+#      PGADMIN_DEFAULT_EMAIL: "gui@alura.com"
+#      PGADMIN_DEFAULT_PASSWORD: "123456"
+      -  DB_HOST=${DB_NAME}
+      -  DB_USER=${DB_USER}
+      -  DB_PASSWORD=${DB_PASSWORD}
+      -  DB_NAME=${DB_PORT}
     ports:
       - "54321:80"
     depends_on:
-      - postgress
-    environment:
-      -  DB_HOST=postgres
-      -  DB_USER=root
-      -  DB_PASSWORD=root
-      -  DB_NAME=root
+      - postgres
+#    environment:
+#      -  DB_HOST=postgres
+#      -  DB_USER=root
+#      -  DB_PASSWORD=root
+#      -  DB_NAME=root
     postgres:
       condition: service_healthy
   restart: unless-stopped
