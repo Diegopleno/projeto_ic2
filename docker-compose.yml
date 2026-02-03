@@ -1,3 +1,5 @@
+version: 3.9
+
 services:
   postgres:
     image: postgres:latest
@@ -27,8 +29,8 @@ pgadmin-compose:
     ports:
       - "54321:80"
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+        #condition: service_healthy
 
 #    environment:
 #      -  DB_HOST=postgres
