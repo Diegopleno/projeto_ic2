@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: "postgres"
+    image: postgres:latest
     environment:
       POSTGRES_USER: root #DB_USER=root ${DB_USER}
       POSTGRES_PASSWORD: root #DB_PASSWORD=root ${DB_PASSWORD}
@@ -15,7 +15,7 @@ healthcheck:
      timeout: 5s
      retries: 5
 
-  pgadmin-compose:
+pgadmin-compose:
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: gui@alura.com
@@ -27,7 +27,9 @@ healthcheck:
     ports:
       - "54321:80"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+
 #    environment:
 #      -  DB_HOST=postgres
 #      -  DB_USER=root
@@ -37,6 +39,6 @@ healthcheck:
 #     condition: service_healthy
 # restart: unless-stopped
 
-#volumes:
-# postgres-data:
+volumes:
+ postgres-data:
 
