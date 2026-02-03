@@ -26,7 +26,7 @@ func ConectaComBancoDeDados() {
 		host, user, password, dbname, port,
 	)
 	
-	fmt.PrintIn("DSN geerado:", dsn)
+	fmt.PrintIn("DSN gerado:", dsn)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
