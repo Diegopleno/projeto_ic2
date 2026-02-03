@@ -25,10 +25,13 @@ jobs:
           go-version: ${{ matrix.go-version }}
           cache: true
 
+      - name: Cleanup docker
+        run: |
+          docker compose down -v || true
+          docker volume prune -f || true
+
       - name: Start DB
         run: |
-          # docker compose (sem hífen) já existe no runner
-          docker compose version || echo "docker compose não disponível"
           docker compose build
           docker compose up -d
 
