@@ -25,7 +25,6 @@ func ConectaComBancoDeDados() {
 	DB.AutoMigrate(&models.Aluno{})
 }	
 	
-)
 /*
 func ConectaComBancoDeDados() {
 	host := os.Getenv ("DB_HOST")
